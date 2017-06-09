@@ -29,6 +29,8 @@ PubSubClient MQTTClient(espClient);
 //#define DEBUG_WiFi  Serial
 //#define DEBUG_MQTT  Serial
 //#define DEBUG_JSON  Serial
+#define DEBUG_WM_ON   true
+#define DEBUG_WM_OFF  false
 
 #define SSDP_PORT 1883
 
@@ -126,6 +128,7 @@ void Scan_WiFi(){
 
 void SmartConnect(){
   WiFiManager wifiManager;
+  wifiManager.setDebugOutput(DEBUG_WM_OFF);
   wifiManager.autoConnect("MonKing","MonKing123");
 
 #ifdef DEBUG_WiFi
