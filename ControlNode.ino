@@ -26,7 +26,7 @@ const char* password = "dygu3kgf";
 WiFiClient espClient;
 PubSubClient MQTTClient(espClient);
 
-//#define DEBUG_WiFi  Serial
+#define DEBUG_WiFi  Serial
 //#define DEBUG_MQTT  Serial
 //#define DEBUG_JSON  Serial
 #define DEBUG_WM_ON   true
@@ -136,6 +136,25 @@ void SmartConnect(){
 #endif
 }
 
+void SmartConfig(){
+  WiFi.mode(WIFI_STA);
+  WiFi.beginSmartConfig();
+  Serial.println("connecting...");
+  while(1){
+    Serial.print(".");
+    delay(500);
+    if(WiFi.smartConfigDone()){
+#ifdef DEBUG_WiFi
+      DEBUG_WiFi.println();
+      DEBUG_WiFi.println("SmartConfig succes!!!");
+      DEBUG_WiFi.printf("SSID: %s\r\n", WiFi.SSID().c_str());
+      DEBUG_WiFi.printf("PSW: %s\r\n", WiFi.psk().c_str());
+#endif
+      break;
+    }
+  }
+}
+
 void Connect_WiFi(){
 
   delay(10);
@@ -185,6 +204,20 @@ bool jsonPaser(byte* payload){
 
   return true;
   
+}
+
+void jsonGenerator(const char* ID, const char* Name,String &data){
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+
+  root["deviceID"] = ID;
+  root["deviceName"] = Name;
+
+#ifdef DEBUG_JSON
+  DEBUG_JSON.printTo(data);
+  DEBUG_JSON.println();
+#endif
+
 }
 
 void callback(char* topic, byte* payload, unsigned int length){
@@ -268,7 +301,8 @@ void setup(){
 //  WiFi.disconnect();
 //  delay(100);
 //  Connect_WiFi();
-  SmartConnect();
+//  SmartConnect();
+  SmartConfig();
   SSDPClientSetup();
   MQTTSetup();
   Serial.println("Setup Done ...");
